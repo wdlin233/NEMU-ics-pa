@@ -21,7 +21,7 @@
 #include <regex.h>
 
 enum {
-  TK_NOTYPE = 256, TK_EQ,
+  TK_NOTYPE = 256, TK_EQ, NUM
 
   /* TODO: Add more token types */
 
@@ -35,9 +35,14 @@ static struct rule {
   /* TODO: Add more rules.
    * Pay attention to the precedence level of different rules.
    */
-
+  {"\\d+", NUM},
   {" +", TK_NOTYPE},    // spaces
-  {"\\+", '+'},         // plus
+  {"\\+", '+'},         // plus, the first is the Escape Character in C and the second is in Regex
+  {"\\-", '-'},
+  {"\\*", '*'},
+  {"\\/", '/'},
+  {"\\(", '('},
+  {"\\)", ')'},
   {"==", TK_EQ},        // equal
 };
 
@@ -95,7 +100,12 @@ static bool make_token(char *e) {
          */
 
         switch (rules[i].token_type) {
-          default: TODO();
+	  case '+':
+	    tokens[nr_token].type = '+';
+	    //tokens[nr_token++].str = 	    
+          default:
+	    printf("i = %d no rules.", i);
+	    break;
         }
 
         break;
