@@ -100,11 +100,33 @@ static bool make_token(char *e) {
          */
 
         switch (rules[i].token_type) {
+	  case TK_NOTYPE:
+	    break; 
 	  case '+':
-	    tokens[nr_token].type = '+';
-	    //tokens[nr_token++].str = 	    
+	    tokens[nr_token++].type = '+';
+	    break;
+	  case '-':
+	    tokens[nr_token++].type = '-';
+	    break;
+	  case '*':
+	    tokens[nr_token++].type = '*';
+	    break;
+	  case '/':
+	    tokens[nr_token++].type = '/';
+	    break;
+	  case '(':
+	    tokens[nr_token++].type = '(';
+	    break;
+	  case ')':
+	    tokens[nr_token++].type = ')';
+	    break;
+	  case NUM:
+	    tokens[nr_token].type = NUM;
+	    strncpy(tokens[nr_token].str, e + position - substr_len, substr_len);
+	    nr_token++;
+	    break;	    
           default:
-	    printf("i = %d no rules.", i);
+	    printf("i = %d no rules.\n", i);
 	    break;
         }
 
