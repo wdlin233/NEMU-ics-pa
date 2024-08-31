@@ -156,3 +156,73 @@ word_t expr(char *e, bool *success) {
 
   return 0;
 }
+
+bool check_parentheses(int p, int q){
+  // looks simple. Syntax error is weakness.
+  if ((p - q) < 2 || tokens[p].type != '(' || tokens[q].type != ')'){
+    return false;
+  }
+  int balance = 0;
+  for (; p < q; p++){
+    if (tokens[p].type == '(') balance++;
+    else if (tokens[q].type == ')') balance--;
+    else if (balance < 0) assert(0); // syntax errors maybe happen
+  }
+  return balance == 0;
+}
+
+uint32_t eval(int p, int q){
+  if (p > q){
+    assert(0);
+    return -1;
+  }
+  else if (p == q){
+    // single token should be a number
+    if (tokens[p].type == NUM) return atoi(tokens[p].str);
+    else assert(0); 
+  }
+  else if (check_parentheses(p, q) == true){
+    return eval(p + 1, q - 1);
+  }
+  else{
+    int op_pos = get_main_op_pos(p, q);
+    uint32_t value1 = eval(p. op_pos - 1);
+    uint32_t value2 = eval(op_pos + 1, q);
+
+    switch(tokens[op_pos].type){
+      case '+':
+        return value1 + value2;
+      case '-':
+	return value1 - value2;
+      case '*':
+        return value1 * value2;
+      case '/':
+	return value1 / value2;
+      default: assert(0);
+    }
+  }
+}
+
+int get_main_op_pos(int p, int q){
+  int precedence = false;
+  if (p > q){
+    assert(0);
+    return -1;
+  }
+  bool ingorance = false;
+  int pos = p;
+  for (; p < q; p++){
+    if (tokens[p].type == '(') ignorance = true;
+    else if (tokens[p].type == ')') ignorance = false;
+    else if ((ignorance == false) && (p < q)){
+      if ((tokens[p].type == '*' || tokens[p].type == '/') && (precedence == false)){
+        pos = p;
+      }
+      else if (tokens[p].type == '+' || tokens[p].type == '-'){
+        pos = p;
+        precedence = true;	
+      }
+    }
+  }
+  return pos;
+}
