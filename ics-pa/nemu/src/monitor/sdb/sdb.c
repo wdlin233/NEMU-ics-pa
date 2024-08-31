@@ -57,6 +57,7 @@ static int cmd_help(char *args);
 static int cmd_si(char *args);
 static int cmd_info(char *args);
 static int cmd_x(char *args);
+static int cmd_p(char *args);
 
 static struct {
   const char *name;
@@ -150,7 +151,7 @@ static int cmd_p(char *args){
   }
   bool flag = false;
   uint32_t res = expr(args, &flag);
-  printf("The result is: %d.\n", &res);
+  printf("The result is: %u.\n", res);
   return 0;
 }
 

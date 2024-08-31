@@ -144,6 +144,9 @@ static bool make_token(char *e) {
   return true;
 }
 
+bool check_parentheses(int p, int q);
+uint32_t eval(int p, int q);
+int get_main_op_pos(int p, int q);
 
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
@@ -153,14 +156,10 @@ word_t expr(char *e, bool *success) {
 
   /* TODO: Insert codes to evaluate the expression. */
   int length = strlen(e);
-  eval(e, e + length - 1);
+  eval(0, length - 1);
 
   return 0;
 }
-
-bool check_parentheses(int p, int q);
-uint32_t eval(int p, int q);
-int get_main_op_pos(int p, int q);
 
 bool check_parentheses(int p, int q){
   // looks simple. Syntax error is weakness.
@@ -191,7 +190,7 @@ uint32_t eval(int p, int q){
   }
   else{
     int op_pos = get_main_op_pos(p, q);
-    uint32_t value1 = eval(p. op_pos - 1);
+    uint32_t value1 = eval(p, op_pos - 1);
     uint32_t value2 = eval(op_pos + 1, q);
 
     switch(tokens[op_pos].type){
@@ -215,7 +214,7 @@ int get_main_op_pos(int p, int q){
     assert(0);
     return -1;
   }
-  bool ingorance = false;
+  bool ignorance = false;
   int pos = p;
   for (; p < q; p++){
     if (tokens[p].type == '(') ignorance = true;
