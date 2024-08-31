@@ -152,10 +152,15 @@ word_t expr(char *e, bool *success) {
   }
 
   /* TODO: Insert codes to evaluate the expression. */
-  TODO();
+  int length = strlen(e);
+  eval(e, e + length - 1);
 
   return 0;
 }
+
+bool check_parentheses(int p, int q);
+uint32_t eval(int p, int q);
+int get_main_op_pos(int p, int q);
 
 bool check_parentheses(int p, int q){
   // looks simple. Syntax error is weakness.
@@ -197,6 +202,7 @@ uint32_t eval(int p, int q){
       case '*':
         return value1 * value2;
       case '/':
+	if (value2 == 0) panic("Divide by zero\n");
 	return value1 / value2;
       default: assert(0);
     }

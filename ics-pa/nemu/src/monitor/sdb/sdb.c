@@ -69,6 +69,7 @@ static struct {
   { "si", "Execuate next [N] lines commands", cmd_si},
   { "info", "Print reg infos with SUBCMD r/w", cmd_info},
   { "x", "Scan next [N] address and output as HEX.", cmd_x},
+  { "p", "Find the value of the EXPR expression.", cmd_p},
   /* TODO: Add more commands */
 
 };
@@ -140,6 +141,16 @@ static int cmd_x(char *args) {
     printf("%x\n", vaddr_read(address, 4));
     address = address + 4;
   }
+  return 0;
+}
+
+static int cmd_p(char *args){
+  if (args == NULL) {
+    printf("Unknown command, input as the form of 'p EXPR,\n'");
+  }
+  bool flag = false;
+  uint32_t res = expr(args, &flag);
+  printf("The result is: %d.\n", &res);
   return 0;
 }
 
