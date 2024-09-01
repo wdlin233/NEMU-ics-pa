@@ -150,8 +150,7 @@ static int cmd_p(char *args){
     printf("Unknown command, input as the form of 'p EXPR,\n'");
   }
   bool flag = false;
-  uint32_t res = expr(args, &flag);
-  printf("The result is: %u.\n", res);
+  expr(args, &flag);
   return 0;
 }
 

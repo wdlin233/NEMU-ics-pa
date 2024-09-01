@@ -35,7 +35,7 @@ static struct rule {
   /* TODO: Add more rules.
    * Pay attention to the precedence level of different rules.
    */
-  {"\\d+", NUM},
+  {"[0-9]+", NUM},
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus, the first is the Escape Character in C and the second is in Regex
   {"\\-", '-'},
@@ -125,6 +125,7 @@ static bool make_token(char *e) {
 	    tokens[nr_token].type = NUM;
 	    strncpy(tokens[nr_token].str, e + position - substr_len, substr_len);
 	    nr_token++;
+	    // Log("In case NUM.");
 	    break;	    
           default:
 	    printf("i = %d no rules.\n", i);
@@ -156,22 +157,27 @@ word_t expr(char *e, bool *success) {
 
   /* TODO: Insert codes to evaluate the expression. */
   int length = strlen(e);
-  eval(0, length - 1);
+  Log("The length of char *e is: %d", length);
+  uint32_t res = eval(0, length - 1);
+  printf("The result is: %u.\n", res);
 
   return 0;
 }
 
 bool check_parentheses(int p, int q){
+  Log("check_parentheses is calling.");
+  Log("check_parentheses with p value: %d, q value: %d", p, q);
   // looks simple. Syntax error is weakness.
-  if ((p - q) < 2 || tokens[p].type != '(' || tokens[q].type != ')'){
+  if ((q - p) < 2 || tokens[p].type != '(' || tokens[q].type != ')'){
     return false;
   }
   int balance = 0;
-  for (; p < q; p++){
+  for (; p <= q; p++){
     if (tokens[p].type == '(') balance++;
-    else if (tokens[q].type == ')') balance--;
+    else if (tokens[p].type == ')') balance--;
     else if (balance < 0) assert(0); // syntax errors maybe happen
   }
+  Log("The value of balance: %d", balance);
   return balance == 0;
 }
 
@@ -186,15 +192,21 @@ uint32_t eval(int p, int q){
     else assert(0); 
   }
   else if (check_parentheses(p, q) == true){
+    Log("check_parentheses(p, q): OK");
+    Log("check_parentheses(p, q) with p value: %d, q value: %d", p, q);
     return eval(p + 1, q - 1);
   }
   else{
     int op_pos = get_main_op_pos(p, q);
+    Log("Get op_pos position: %d", op_pos);
     uint32_t value1 = eval(p, op_pos - 1);
+    Log("Get value1: %d", value1);
     uint32_t value2 = eval(op_pos + 1, q);
+    Log("Get value2: %d", value2);
 
     switch(tokens[op_pos].type){
       case '+':
+	Log("SUM!");
         return value1 + value2;
       case '-':
 	return value1 - value2;
@@ -216,7 +228,9 @@ int get_main_op_pos(int p, int q){
   }
   bool ignorance = false;
   int pos = p;
+  Log("p value: %d, q value: %d", p, q);
   for (; p < q; p++){
+    Log("In get_main_op_pos *for* loop");
     if (tokens[p].type == '(') ignorance = true;
     else if (tokens[p].type == ')') ignorance = false;
     else if ((ignorance == false) && (p < q)){
