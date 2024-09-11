@@ -102,6 +102,7 @@ static bool make_token(char *e) {
 
         switch (rules[i].token_type) {
 	  case TK_NOTYPE:
+	    //printf("SPACE\n");
 	    break; 
 	  case '+':
 	    tokens[nr_token++].type = '+';
@@ -156,17 +157,18 @@ word_t expr(char *e, bool *success) {
   }
 
   /* TODO: Insert codes to evaluate the expression. */
-  int length = strlen(e);
-  Log("The length of char *e is: %d", length);
-  uint32_t res = eval(0, length - 1);
+  printf("%d\n", nr_token);
+  //int length = strlen(e);
+  //Log("The length of char *e is: %d", length);
+  uint32_t res = eval(0, nr_token - 1);
   printf("The result is: %u.\n", res);
 
   return 0;
 }
 
 bool check_parentheses(int p, int q){
-  Log("check_parentheses is calling.");
-  Log("check_parentheses with p value: %d, q value: %d", p, q);
+  //Log("check_parentheses is calling.");
+  //Log("check_parentheses with p value: %d, q value: %d", p, q);
   // looks simple. Syntax error is weakness.
   if ((q - p) < 2 || tokens[p].type != '(' || tokens[q].type != ')'){
     return false;
@@ -192,7 +194,7 @@ uint32_t eval(int p, int q){
     else assert(0); 
   }
   else if (check_parentheses(p, q) == true){
-    Log("check_parentheses(p, q): OK");
+    //Log("check_parentheses(p, q): OK");
     Log("check_parentheses(p, q) with p value: %d, q value: %d", p, q);
     return eval(p + 1, q - 1);
   }
@@ -230,8 +232,10 @@ int get_main_op_pos(int p, int q){
   int pos = p;
   Log("p value: %d, q value: %d", p, q);
   for (; p < q; p++){
-    Log("In get_main_op_pos *for* loop");
-    if (tokens[p].type == '(') ignorance = true;
+    //Log("In get_main_op_pos *for* loop");
+    //printf("ignorance: %d\n", ignorance);
+    if (tokens[p].type == TK_NOTYPE) continue; 
+    else if (tokens[p].type == '(') ignorance = true;
     else if (tokens[p].type == ')') ignorance = false;
     else if ((ignorance == false) && (p < q)){
       if ((tokens[p].type == '*' || tokens[p].type == '/') && (precedence == false)){
