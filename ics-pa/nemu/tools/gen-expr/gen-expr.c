@@ -19,6 +19,7 @@
 #include <time.h>
 #include <assert.h>
 #include <string.h>
+#include <string>
 
 // this should be enough
 static char buf[65536] = {};
@@ -30,9 +31,44 @@ static char *code_format =
 "  printf(\"%%u\", result); "
 "  return 0; "
 "}";
+uint32_t buf_index = 0;
 
+static uint32_t choose(uint32_t n);
+static void gen_num();
+static void gen(char c);
+static void gen_rand_op();
 static void gen_rand_expr() {
-  buf[0] = '\0';
+  if (buf_index > 65535) assert(0);
+  switch (choose(3)) {
+    case 0: gen_num(); break;
+    case 1: gen('('); gen_rand_expr(); gen(')'); break;
+    default: gen_rand_expr(); gen_rand_op(); gen_rand_expr(); break;
+  }
+}
+
+static uint32_t choose(uint32_t n) {
+  uint32_t flag = rand() % n;
+  //printf("buf_index: %u, flag: %u", buf_index, flag);
+  return flag;
+}
+
+static void gen_num() {
+  // trans random int to char*
+  uint32_t num = rand() % 100;
+  std::string str = std::to_string(num);
+  for (int i = 0; i < str.length() - 1; i++) {
+    buf[buf_index++] = str[i];
+  }
+}
+
+static void gen(char c) {
+  buf[buf_index++] = c;
+}
+
+static void gen_rand_op() {
+  char op[4] = {'+', '-', '*', '/'};
+  uint32_t flag = rand() % 4;
+  buf[buf_index++] = op[flag];
 }
 
 int main(int argc, char *argv[]) {
