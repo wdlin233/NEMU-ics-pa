@@ -21,7 +21,7 @@
 #include <regex.h>
 
 enum {
-  TK_NOTYPE = 256, TK_EQ, NUM
+  TK_NOTYPE = 256, TK_EQ, NUM, HEX, REG, DEREF
 
   /* TODO: Add more token types */
 
@@ -36,6 +36,8 @@ static struct rule {
    * Pay attention to the precedence level of different rules.
    */
   {"[0-9]+", NUM},
+  {"0[xX][0-9a-fA-F]+", HEX},
+  {"\\$[a-z]+[0-9]+", REG}, //register
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus, the first is the Escape Character in C and the second is in Regex
   {"\\-", '-'},
@@ -126,7 +128,28 @@ static bool make_token(char *e) {
 	    strncpy(tokens[nr_token].str, e + position - substr_len, substr_len);
 	    nr_token++;
 	    // Log("In case NUM.");
-	    break;	    
+	    break;
+	  case HEX:
+	    tokens[nr_token].type = HEX;
+	    strncpy(tokens[nr_token].str, e + position - substr_len, substr_len);
+	    nr_token++;
+	    int val = strtol(tokens[nr_token].str, NULL, 0);
+	    VAL2NUM(tokens[nr_token].str, val);
+	    break;
+	  case REG: 
+	    tokens[nr_token].type = REG;
+	    strncpy(tokens[nr_token].str, e + position - substr_len, substr_len);
+	    nr_token++;
+	    bool flag = true;
+	    int val = isa_reg_str2val(tokens[nr_token].str, &flag);
+	    if (flag) {
+	      VAL2NUM(tokens[nr_token].str, val);
+	    }
+	    else {
+	      printf("REG trans NUM, failed.");
+	      assert(0);
+	    }
+	    break;
           default:
 	    printf("i = %d no rules.\n", i);
 	    break;
@@ -143,6 +166,25 @@ static bool make_token(char *e) {
   }
 
   return true;
+}
+
+void VAL2NUM(char *&str, int val) {
+  memset(str, 0, len(str)); // clear tokens[i].str
+  int val_tmp = val;
+  int val_size = 0;
+  while(val_tmp) {
+    val_tmp /= 10;
+    val_size++;
+  }
+  int x = 1;
+  while (val_size > 1) {
+    x *= 10;
+    val_size--;
+  }
+  for (int str_index = 0; val > 0; str_index++) {
+    str[str_index] = (val /= x) + '0';
+    x /= 10; 
+  }
 }
 
 bool check_parentheses(int p, int q);
