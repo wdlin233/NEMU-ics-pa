@@ -35,9 +35,10 @@ static struct rule {
   /* TODO: Add more rules.
    * Pay attention to the precedence level of different rules.
    */
-  {"[0-9]+", NUM},
   {"0[xX][0-9a-fA-F]+", HEX},
   {"\\$[a-z]+[0-9]+", REG}, //register
+  {"[0-9]+", NUM},
+  {"0[xX][0-9a-fA-F]+", HEX},
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus, the first is the Escape Character in C and the second is in Regex
   {"\\-", '-'},
@@ -76,6 +77,28 @@ typedef struct token {
 
 static Token tokens[32] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
+
+void VAL2NUM(char *str, int val) {
+  memset(str, 0, strlen(str)); // clear tokens[i].str
+  int val_tmp = val;
+  int val_size = 0;
+  while(val_tmp) {
+    val_tmp /= 10;
+    val_size++;
+  }
+  int x = 1;
+  while (val_size > 1) {
+    x *= 10;
+    val_size--;
+  }
+  for (int str_index = 0; val > 0; str_index++) {
+    str[str_index] = (val / x) + '0';
+    //printf("%d",val/x);
+    val %= x;
+    x /= 10; 
+  }
+}
+
 
 static bool make_token(char *e) {
   // Lexical Analyzer
@@ -131,24 +154,29 @@ static bool make_token(char *e) {
 	    break;
 	  case HEX:
 	    tokens[nr_token].type = HEX;
+	    //printf("HEX here");
 	    strncpy(tokens[nr_token].str, e + position - substr_len, substr_len);
+	    int val1 = strtol(tokens[nr_token].str, NULL, 16);
+	    //printf("%d", val1);
+	    VAL2NUM(tokens[nr_token].str, val1);
 	    nr_token++;
-	    int val = strtol(tokens[nr_token].str, NULL, 0);
-	    VAL2NUM(tokens[nr_token].str, val);
 	    break;
 	  case REG: 
 	    tokens[nr_token].type = REG;
-	    strncpy(tokens[nr_token].str, e + position - substr_len, substr_len);
-	    nr_token++;
+	    strncpy(tokens[nr_token].str, e + position - substr_len + 1, substr_len - 1); // "$s10"=>"s10" for comparing
+	    //printf("%s",tokens[nr_token-1].str);
+	    //printf("I am in REG");
 	    bool flag = true;
-	    int val = isa_reg_str2val(tokens[nr_token].str, &flag);
+	    int val2 = isa_reg_str2val(tokens[nr_token].str, &flag);
+	    //printf("%d", val2);
 	    if (flag) {
-	      VAL2NUM(tokens[nr_token].str, val);
+	      VAL2NUM(tokens[nr_token].str, val2);
 	    }
 	    else {
 	      printf("REG trans NUM, failed.");
 	      assert(0);
 	    }
+	    nr_token++;
 	    break;
           default:
 	    printf("i = %d no rules.\n", i);
@@ -166,25 +194,6 @@ static bool make_token(char *e) {
   }
 
   return true;
-}
-
-void VAL2NUM(char *&str, int val) {
-  memset(str, 0, len(str)); // clear tokens[i].str
-  int val_tmp = val;
-  int val_size = 0;
-  while(val_tmp) {
-    val_tmp /= 10;
-    val_size++;
-  }
-  int x = 1;
-  while (val_size > 1) {
-    x *= 10;
-    val_size--;
-  }
-  for (int str_index = 0; val > 0; str_index++) {
-    str[str_index] = (val /= x) + '0';
-    x /= 10; 
-  }
 }
 
 bool check_parentheses(int p, int q);
@@ -231,7 +240,7 @@ uint32_t eval(int p, int q){
   }
   else if (p == q){
     // single token should be a number
-    if (tokens[p].type == NUM) return atoi(tokens[p].str);
+    if (tokens[p].type == NUM || tokens[p].type == HEX || tokens[p].type == REG) return atoi(tokens[p].str);
     else assert(0); 
   }
   else if (check_parentheses(p, q) == true){
