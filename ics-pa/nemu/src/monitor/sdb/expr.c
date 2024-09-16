@@ -90,8 +90,7 @@ static bool make_token(char *e) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
-        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-            i, rules[i].regex, position, substr_len, substr_len, substr_start);
+        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s", i, rules[i].regex, position, substr_len, substr_len, substr_start);
 
         position += substr_len;
 
@@ -157,7 +156,7 @@ word_t expr(char *e, bool *success) {
   }
 
   /* TODO: Insert codes to evaluate the expression. */
-  printf("%d\n", nr_token);
+  //printf("%d\n", nr_token);
   //int length = strlen(e);
   //Log("The length of char *e is: %d", length);
   uint32_t res = eval(0, nr_token - 1);
@@ -179,7 +178,7 @@ bool check_parentheses(int p, int q){
     else if (tokens[p].type == ')') balance--;
     else if (balance < 0) assert(0); // syntax errors maybe happen
   }
-  Log("The value of balance: %d", balance);
+  //Log("The value of balance: %d", balance);
   return balance == 0;
 }
 
@@ -195,20 +194,20 @@ uint32_t eval(int p, int q){
   }
   else if (check_parentheses(p, q) == true){
     //Log("check_parentheses(p, q): OK");
-    Log("check_parentheses(p, q) with p value: %d, q value: %d", p, q);
+    //Log("check_parentheses(p, q) with p value: %d, q value: %d", p, q);
     return eval(p + 1, q - 1);
   }
   else{
     int op_pos = get_main_op_pos(p, q);
-    Log("Get op_pos position: %d", op_pos);
+    //Log("Get op_pos position: %d", op_pos);
     uint32_t value1 = eval(p, op_pos - 1);
-    Log("Get value1: %d", value1);
+    //Log("Get value1: %d", value1);
     uint32_t value2 = eval(op_pos + 1, q);
-    Log("Get value2: %d", value2);
+    //Log("Get value2: %d", value2);
 
     switch(tokens[op_pos].type){
       case '+':
-	Log("SUM!");
+	//Log("SUM!");
         return value1 + value2;
       case '-':
 	return value1 - value2;
@@ -230,7 +229,7 @@ int get_main_op_pos(int p, int q){
   }
   bool ignorance = false;
   int pos = p;
-  Log("p value: %d, q value: %d", p, q);
+  //Log("p value: %d, q value: %d", p, q);
   for (; p < q; p++){
     //Log("In get_main_op_pos *for* loop");
     //printf("ignorance: %d\n", ignorance);

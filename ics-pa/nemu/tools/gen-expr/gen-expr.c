@@ -19,7 +19,7 @@
 #include <time.h>
 #include <assert.h>
 #include <string.h>
-#include <string>
+//#include <string>
 
 // this should be enough
 static char buf[65536] = {};
@@ -37,21 +37,36 @@ static uint32_t choose(uint32_t n);
 static void gen_num();
 static void gen(char c);
 static void gen_rand_op();
+/*
+$ gcc ./gen-expr.c -o ,.gen-expr
+$ ./gen-expr 3 > input 
+*/
 static void gen_rand_expr() {
   if (buf_index > 65535) assert(0);
   switch (choose(3)) {
-    case 0: gen_num(); break;
-    case 1: gen('('); gen_rand_expr(); gen(')'); break;
-    default: gen_rand_expr(); gen_rand_op(); gen_rand_expr(); break;
+    // case 0, then case 1: 76(48) can't be calculated.
+    case 0: 
+      gen_num(); 
+      break;
+    case 1: 
+      gen('('); 
+      gen_rand_expr(); 
+      gen(')'); 
+      break;
+    default: 
+      gen_rand_expr(); 
+      gen_rand_op(); 
+      gen_rand_expr(); 
+      break;
   }
 }
 
 static uint32_t choose(uint32_t n) {
   uint32_t flag = rand() % n;
-  //printf("buf_index: %u, flag: %u", buf_index, flag);
+  // printf("buf_index: %u, flag: %u", buf_index, flag);
   return flag;
 }
-
+/*
 static void gen_num() {
   // trans random int to char*
   uint32_t num = rand() % 100;
@@ -60,7 +75,27 @@ static void gen_num() {
     buf[buf_index++] = str[i];
   }
 }
-
+*/
+static void gen_num() {
+  int num = rand() % 100;
+  int num_size = 0, num_tmp = num;
+  while(num_tmp) {
+    num_tmp /= 10;
+    num_size++;
+  }
+  int x = 1;
+  while(num_size > 1) {
+    x *= 10;
+    num_size--;
+  }
+  // x: 100, 10, 1
+  while(num) {
+    char c = num / x + '0';
+    num %= x;
+    x /= 10;
+    buf[buf_index++] = c;
+  }
+}
 static void gen(char c) {
   buf[buf_index++] = c;
 }

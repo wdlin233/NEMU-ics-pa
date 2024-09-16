@@ -27,7 +27,7 @@ void isa_reg_display() {
   printf("In src/isa/riscv32/include/isa-def.h\n");
   int length = sizeof(regs)/sizeof(regs[0]);
   for (int i = 0; i < length; i++) {
-    printf("reg %s => %d\n", regs[i], cpu.gpr[i]);
+    printf("reg$%s => %d\n", regs[i], cpu.gpr[i]);
     // cpu.gpr[check_reg_idx(idx)] in reg.h
   }
 }
