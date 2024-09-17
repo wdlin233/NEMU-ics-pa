@@ -24,6 +24,9 @@ static int is_batch_mode = false;
 
 void init_regex();
 void init_wp_pool();
+void create_watchpoint(char *args);
+void delete_watchpoint(int no);
+void sdb_watchpoint_display();
 
 /* We use the `readline' library to provide more flexibility to read from stdin. */
 static char* rl_gets() {
@@ -58,6 +61,8 @@ static int cmd_si(char *args);
 static int cmd_info(char *args);
 static int cmd_x(char *args);
 static int cmd_p(char *args);
+static int cmd_w(char *args);
+static int cmd_d(char *args);
 
 static struct {
   const char *name;
@@ -71,6 +76,8 @@ static struct {
   { "info", "Print reg infos with SUBCMD r/w", cmd_info},
   { "x", "Scan next [N] address and output as HEX.", cmd_x},
   { "p", "Find the value of the EXPR expression.", cmd_p},
+  { "w", "Add the expression to the watchpoints list.", cmd_w},
+  { "d", "Delete the watchpoint with number order.", cmd_d}
   /* TODO: Add more commands */
 
 };
@@ -122,7 +129,7 @@ static int cmd_info(char *args) {
       isa_reg_display();      
     }
     if (strcmp(args, "w") == 0) {
-     //sdb_watchpoint_display(); 
+     sdb_watchpoint_display(); 
     }
   }
   return 0;
@@ -147,10 +154,22 @@ static int cmd_x(char *args) {
 
 static int cmd_p(char *args){
   if (args == NULL) {
-    printf("Unknown command, input as the form of 'p EXPR,\n'");
+    printf("Unknown command, input as the form of 'p EXPR'.\n");
   }
   bool flag = false;
   expr(args, &flag);
+  return 0;
+}
+
+static int cmd_w(char *args) {
+  if (args == NULL) printf("Unknown command, input as the form of 'w EXPR'.\n");
+  else create_watchpoint(args);
+  return 0;
+}
+
+static int cmd_d(char *args) {
+  if (args == NULL) printf("Unknown command, input as the form of 'd NUM'.\n");
+  else delete_watchpoint(atoi(args));
   return 0;
 }
 
